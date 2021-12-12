@@ -44,6 +44,7 @@ import RandomUtil from './modules/util/RandomUtil';
 import ComponentsVersions from './modules/version/ComponentsVersions';
 import VideoSIPGW from './modules/videosipgw/VideoSIPGW';
 import * as VideoSIPGWConstants from './modules/videosipgw/VideoSIPGWConstants';
+import JitsiRecordingConstants from './modules/recording/recordingConstants';
 import {
     FEATURE_E2EE,
     FEATURE_JIGASI,
@@ -91,6 +92,7 @@ const JINGLE_SI_TIMEOUT = 5000;
  * calculated and submitted to the analytics module.
  * @param {boolean} [options.config.enableIceRestart=false] - enables the ICE
  * restart logic.
+ * @param {boolean} [options.config.startRecording] start recording
  * @param {boolean} [options.config.p2p.enabled] when set to <tt>true</tt>
  * the peer to peer mode will be enabled. It means that when there are only 2
  * participants in the conference an attempt to make direct connection will be
@@ -113,6 +115,7 @@ const JINGLE_SI_TIMEOUT = 5000;
  *       {@link JitsiConference.onLocalRoleChanged}
  *       {@link JitsiConference.onUserRoleChanged}
  *       {@link JitsiConference.onMemberLeft}
+ *       {@link JitsiConference.onStartRecording}
  *       and so on...
  */
 export default function JitsiConference(options) {
@@ -142,6 +145,7 @@ export default function JitsiConference(options) {
     this.authEnabled = false;
     this.startAudioMuted = false;
     this.startVideoMuted = false;
+    this.startRecording = true;
     this.startMutedPolicy = {
         audio: false,
         video: false
@@ -1608,6 +1612,22 @@ JitsiConference.prototype.onMemberJoined = function(
     this._maybeSetSITimeout();
 };
 
+
+JitsiConference.prototype.onStartRecording = function(data) {
+
+    logger.info(` start rec data received`);
+    let recSession=this.recordingManager.getActiveSession();
+    if(recSession === null || (recSession != null && recSession.status === JitsiRecordingConstants.OFF)){
+        if(this.options.config.startRecording){
+            this.recordingManager.startRecording({mode:'file'});
+        }
+
+    }else if(recSession != null && recSession.status != JitsiRecordingConstants.OFF && !this.options.config.startRecording ){
+        this.recordingManager.stopRecording(recSession.sessionID);
+    }
+
+};
+
 /* eslint-enable max-params */
 
 /**
@@ -2289,6 +2309,13 @@ JitsiConference.prototype.stopRecording = function(sessionID) {
     }
 
     return Promise.reject(new Error('The conference is not created yet!'));
+};
+
+/**
+ * Check if recording need to start.
+ */
+JitsiConference.prototype.isStartRecording = function() {
+    return this.startRecording;
 };
 
 /**

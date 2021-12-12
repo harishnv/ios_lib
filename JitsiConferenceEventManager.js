@@ -283,6 +283,11 @@ JitsiConferenceEventManager.prototype.setupChatRoomListeners = function() {
     this.chatRoomForwarder.forward(XMPPEvents.VIDEO_SIP_GW_AVAILABILITY_CHANGED,
         JitsiConferenceEvents.VIDEO_SIP_GW_AVAILABILITY_CHANGED);
 
+
+    chatRoom.addListener(XMPPEvents.START_RECORDING,
+        conference.onStartRecording.bind(conference));
+    this.chatRoomForwarder.forward(XMPPEvents.START_RECORDING,
+        JitsiConferenceEvents.START_RECORDING);
     this.chatRoomForwarder.forward(
         XMPPEvents.VIDEO_SIP_GW_SESSION_STATE_CHANGED,
         JitsiConferenceEvents.VIDEO_SIP_GW_SESSION_STATE_CHANGED);

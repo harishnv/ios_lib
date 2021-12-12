@@ -252,6 +252,8 @@ const XMPPEvents = {
     // audio and/or video muted.
     START_MUTED_FROM_FOCUS: 'xmpp.start_muted_from_focus',
 
+    START_RECORDING : 'xmpp.start_recording',
+
     // Designates an event indicating that the subject of the XMPP MUC has
     // changed.
     SUBJECT_CHANGED: 'xmpp.subject_changed',
